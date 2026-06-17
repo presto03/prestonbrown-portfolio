@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Performance Score Calculator for daily fitness, study, and wellness habits.">
+  <title>Science of Fitness</title>
+
+  <style>
+    /* Global design settings */
+    :root {
+      --background: #081017;
+      --panel: #101b25;
+      --panel-light: #172635;
+      --text: #eef6f8;
+      --muted: #9eb0bf;
+      --line: rgba(255, 255, 255, 0.12);
+      --accent: #39d98a;
+      --accent-strong: #23b873;
+      --warning: #f6c85f;
+      --danger: #ff6b6b;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(57, 217, 138, 0.16), transparent 30rem),
+        radial-gradient(circle at bottom right, rgba(57, 145, 217, 0.12), transparent 28rem),
+        var(--background);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    /* Navigation */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 6%;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 16, 23, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* Layout */
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+      gap: 1.5rem;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 4rem 1.25rem;
+    }
+
+    .intro {
+      grid-column: 1 / -1;
+      max-width: 820px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      margin: 0 0 0.85rem;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 1rem;
+      font-size: clamp(2.4rem, 7vw, 5rem);
+      line-height: 1.05;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel-light), var(--panel));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+    }
+
+    /* Form controls */
+    .calculator-form {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    .control-card {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      transition: border-color 180ms ease, transform 180ms ease;
+    }
+
+    .control-card:hover {
+      border-color: rgba(57, 217, 138, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .control-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    label {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .value-pill {
+      min-width: 78px;
+      padding: 0.25rem 0.55rem;
+      color: #06100b;
+      background: var(--accent);
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .helper-text {
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .calculate-button {
+      min-height: 52px;
+      margin-top: 0.3rem;
+      color: #06100b;
+      background: var(--accent);
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 900;
+      transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .calculate-button:hover {
+      background: var(--accent-strong);
+      box-shadow: 0 12px 30px rgba(57, 217, 138, 0.22);
+      transform: translateY(-2px);
+    }
+
+    /* Results panel */
+    .results-panel {
+      position: sticky;
+      top: 1.5rem;
+      align-self: start;
+    }
+
+    .score-circle {
+      display: grid;
+      place-items: center;
+      width: min(240px, 70vw);
+      height: min(240px, 70vw);
+      margin: 1.25rem auto;
+      border: 10px solid rgba(57, 217, 138, 0.2);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .score-number {
+      color: var(--accent);
+      font-size: clamp(3.5rem, 10vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .score-label {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      margin-bottom: 1rem;
+      padding: 0.45rem 0.75rem;
+      color: #06100b;
+      background: var(--accent);
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    .recommendation {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .recommendation p {
+      margin-bottom: 0;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 0.65rem;
+      margin: 1rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .mini-list li {
+      color: var(--muted);
+      padding-left: 1rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        padding-top: 3rem;
+      }
+
+      .results-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .nav-link {
+        width: 100%;
+      }
+
+      .app-shell {
+        padding: 2.5rem 1rem;
+      }
+
+      .panel {
+        padding: 1rem;
+      }
+
+      .control-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav" aria-label="App navigation">
+    <div class="brand">Performance Score Calculator</div>
+    <a class="nav-link" href="scratch.html">Back to Main Page</a>
+  </nav>
+
+  <main class="app-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Daily Habits Dashboard</p>
+      <h1 id="page-title">Calculate Your Performance Score</h1>
+      <p>
+        Adjust your daily habits to estimate how well your routine supports fitness, focus, productivity,
+        and long-term success.
+      </p>
+    </section>
+
+    <section class="panel" aria-labelledby="inputs-title">
+      <h2 id="inputs-title">Daily Inputs</h2>
+
+      <form class="calculator-form" id="performanceForm">
+        <div class="control-card">
+          <div class="control-header">
+            <label for="sleep">Sleep hours</label>
+            <span class="value-pill" id="sleepValue">7.5 hrs</span>
+          </div>
+          <input id="sleep" type="range" min="0" max="12" step="0.5" value="7.5">
+          <p class="helper-text">Most high performers recover best around 7 to 9 hours.</p>
+        </div>
+
+        <div class="control-card">
+          <div class="control-header">
+            <label for="workouts">Workouts per week</label>
+            <span class="value-pill" id="workoutsValue">4</span>
+          </div>
+          <input id="workouts" type="range" min="0" max="7" step="1" value="4">
+          <p class="helper-text">Regular training improves energy, discipline, and confidence.</p>
+        </div>
+
+        <div class="control-card">
+          <div class="control-header">
+            <label for="study">Study hours per day</label>
+            <span class="value-pill" id="studyValue">3 hrs</span>
+          </div>
+          <input id="study" type="range" min="0" max="10" step="0.5" value="3">
+          <p class="helper-text">Focused study builds career skills and academic momentum.</p>
+        </div>
+
+        <div class="control-card">
+          <div class="control-header">
+            <label for="water">Water intake</label>
+            <span class="value-pill" id="waterValue">8 cups</span>
+          </div>
+          <input id="water" type="range" min="0" max="16" step="1" value="8">
+          <p class="helper-text">Hydration supports focus, workouts, and overall wellness.</p>
+        </div>
+
+        <div class="control-card">
+          <div class="control-header">
+            <label for="screen">Screen time</label>
+            <span class="value-pill" id="screenValue">4 hrs</span>
+          </div>
+          <input id="screen" type="range" min="0" max="14" step="0.5" value="4">
+          <p class="helper-text">Too much passive screen time can reduce sleep, focus, and productivity.</p>
+        </div>
+
+        <button class="calculate-button" type="submit">Calculate Score</button>
+      </form>
+    </section>
+
+    <aside class="panel results-panel" aria-labelledby="results-title">
+      <h2 id="results-title">Performance Output</h2>
+
+      <div class="score-circle" aria-live="polite">
+        <div>
+          <div class="score-number" id="scoreOutput">82</div>
+          <div class="score-label">Performance Score</div>
+        </div>
+      </div>
+
+      <span class="level-badge" id="levelOutput">Strong</span>
+
+      <div class="recommendation">
+        <h3>Recommendation</h3>
+        <p id="recommendationOutput">
+          You have a strong foundation. Keep protecting sleep, stay consistent with workouts, and limit screen time
+          when you need deeper focus.
+        </p>
+      </div>
+
+      <ul class="mini-list" id="habitSummary">
+        <li>Sleep and recovery are supporting your routine.</li>
+        <li>Training consistency is building momentum.</li>
+        <li>Focus habits can still improve with better screen boundaries.</li>
+      </ul>
+    </aside>
+  </main>
+
+  <script>
+    // Select form inputs and output elements.
+    const form = document.getElementById("performanceForm");
+    const inputs = {
+      sleep: document.getElementById("sleep"),
+      workouts: document.getElementById("workouts"),
+      study: document.getElementById("study"),
+      water: document.getElementById("water"),
+      screen: document.getElementById("screen")
+    };
+
+    const valueLabels = {
+      sleep: document.getElementById("sleepValue"),
+      workouts: document.getElementById("workoutsValue"),
+      study: document.getElementById("studyValue"),
+      water: document.getElementById("waterValue"),
+      screen: document.getElementById("screenValue")
+    };
+
+    const scoreOutput = document.getElementById("scoreOutput");
+    const levelOutput = document.getElementById("levelOutput");
+    const recommendationOutput = document.getElementById("recommendationOutput");
+    const habitSummary = document.getElementById("habitSummary");
+
+    // Keep visible value labels in sync with slider values.
+    function updateValueLabels() {
+      valueLabels.sleep.textContent = `${inputs.sleep.value} hrs`;
+      valueLabels.workouts.textContent = inputs.workouts.value;
+      valueLabels.study.textContent = `${inputs.study.value} hrs`;
+      valueLabels.water.textContent = `${inputs.water.value} cups`;
+      valueLabels.screen.textContent = `${inputs.screen.value} hrs`;
+    }
+
+    // Convert each habit into a weighted score out of 100.
+    function calculateScore() {
+      const sleep = Number(inputs.sleep.value);
+      const workouts = Number(inputs.workouts.value);
+      const study = Number(inputs.study.value);
+      const water = Number(inputs.water.value);
+      const screen = Number(inputs.screen.value);
+
+      const sleepScore = Math.max(0, 100 - Math.abs(8 - sleep) * 16);
+      const workoutScore = Math.min(100, (workouts / 5) * 100);
+      const studyScore = Math.min(100, (study / 4) * 100);
+      const waterScore = Math.max(0, 100 - Math.abs(8 - water) * 8);
+      const screenScore = Math.max(0, 100 - Math.max(0, screen - 2) * 10);
+
+      const total =
+        sleepScore * 0.25 +
+        workoutScore * 0.2 +
+        studyScore * 0.2 +
+        waterScore * 0.15 +
+        screenScore * 0.2;
+
+      return Math.round(Math.max(0, Math.min(100, total)));
+    }
+
+    // Determine the performance level from the final score.
+    function getLevel(score) {
+      if (score >= 90) return "Elite";
+      if (score >= 75) return "Strong";
+      if (score >= 55) return "Average";
+      return "Needs Improvement";
+    }
+
+    // Build a recommendation based on the user's weakest habits.
+    function getRecommendation(score, level) {
+      const sleep = Number(inputs.sleep.value);
+      const workouts = Number(inputs.workouts.value);
+      const study = Number(inputs.study.value);
+      const water = Number(inputs.water.value);
+      const screen = Number(inputs.screen.value);
+
+      if (level === "Elite") {
+        return "Your routine is excellent. Maintain your recovery, training, and focus habits while making small improvements each week.";
+      }
+
+      if (sleep < 7) {
+        return "Your biggest opportunity is recovery. Add a consistent bedtime and aim for at least 7 hours of sleep to improve energy and focus.";
+      }
+
+      if (workouts < 3) {
+        return "Increase training consistency. Start with three workouts per week to build discipline, energy, and confidence.";
+      }
+
+      if (study < 2) {
+        return "Your focus routine needs more structure. Try scheduling two protected study blocks each day before entertainment or scrolling.";
+      }
+
+      if (water < 6) {
+        return "Hydration is holding the score back. Keep water nearby and aim for at least 6 to 8 cups throughout the day.";
+      }
+
+      if (screen > 6) {
+        return "Screen time is likely lowering productivity. Set app limits or create phone-free blocks for studying, training, and sleep.";
+      }
+
+      if (score >= 75) {
+        return "You have a strong foundation. Keep protecting sleep, stay consistent with workouts, and limit screen time when you need deeper focus.";
+      }
+
+      return "Build from the basics: sleep more consistently, train several times per week, hydrate, and reduce passive screen time.";
+    }
+
+    // Add quick bullet feedback so the result feels personalized.
+    function updateHabitSummary() {
+      const sleep = Number(inputs.sleep.value);
+      const workouts = Number(inputs.workouts.value);
+      const study = Number(inputs.study.value);
+      const screen = Number(inputs.screen.value);
+
+      const items = [
+        sleep >= 7 ? "Sleep and recovery are supporting your routine." : "Sleep is below the recommended performance range.",
+        workouts >= 3 ? "Training consistency is building momentum." : "More weekly workouts would improve discipline and energy.",
+        study >= 2 ? "Study habits are supporting career growth." : "More focused study time would strengthen productivity.",
+        screen <= 5 ? "Screen time is controlled enough for focus." : "Screen time is high and may be crowding out recovery or deep work."
+      ];
+
+      habitSummary.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+    }
+
+    // Refresh the score, level, recommendation, and summary output.
+    function updateResults() {
+      const score = calculateScore();
+      const level = getLevel(score);
+
+      scoreOutput.textContent = score;
+      levelOutput.textContent = level;
+      recommendationOutput.textContent = getRecommendation(score, level);
+      updateHabitSummary();
+    }
+
+    // Update labels as sliders move, then calculate when the button is clicked.
+    Object.values(inputs).forEach((input) => {
+      input.addEventListener("input", updateValueLabels);
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      updateValueLabels();
+      updateResults();
+    });
+
+    // Initialize the app with the default values.
+    updateValueLabels();
+    updateResults();
+  </script>
+</body>
+</html>
